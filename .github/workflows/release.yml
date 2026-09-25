@@ -129,8 +129,67 @@ jobs:
             artifacts/*.snupkg
           retention-days: 7
 
-  publish:
+  # Proves the packed nupkg actually installs and boots standalone before it's published - the same
+  # check ci.yml's own test-packages job does, re-run here in case release.yml is ever dispatched from
+  # a commit ci.yml hasn't already verified.
+  test-packages:
     needs: [setup, build-and-verify]
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Download packed nupkg
+        uses: actions/download-artifact@v8
+        with:
+          name: release-nuget-packages
+          path: local-feed
+
+      - name: Add local feed with package source mapping
+        run: |
+          dotnet nuget add source "$(pwd)/local-feed" -n local-recent-media-picker
+          dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+
+      - name: Swap ProjectReference for a PackageReference
+        working-directory: ${{ env.PATH_TO_TESTSITE }}
+        run: |
+          dotnet remove reference ../Umbraco.Community.RecentMediaPicker/Umbraco.Community.RecentMediaPicker.csproj
+          dotnet add package Umbraco.Community.RecentMediaPicker --version "$PACKAGE_VERSION" --source local-recent-media-picker
+
+      - name: Build & boot the TestSite from the packed package
+        working-directory: ${{ env.PATH_TO_TESTSITE }}
+        run: |
+          dotnet build -c Release
+          ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5000 \
+            nohup dotnet run -c Release --no-build > ../../testsite-from-package.log 2>&1 &
+          echo $! > testsite.pid
+
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5000/umbraco/swagger/recentmediapicker/swagger.json > /dev/null; then
+              echo "TestSite booted successfully from the packed nupkg."
+              kill "$(cat testsite.pid)"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "TestSite did not boot from the packed nupkg." >&2
+          cat ../../testsite-from-package.log
+          exit 1
+
+      - name: Check for startup errors
+        if: always()
+        shell: pwsh
+        run: ./.github/scripts/Check-StartupErrors.ps1 -LogDirectory "${{ env.PATH_TO_TESTSITE }}/umbraco/Logs"
+
+  publish:
+    needs: [setup, build-and-verify, test-packages]
     runs-on: ubuntu-latest
     steps:
       - name: Download packages
