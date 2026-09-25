@@ -74,7 +74,7 @@ jobs:
           # id "00-<slug>" sorts before alpha/beta/rc so these never look newer than a real prerelease.
           BRANCH_SLUG=$(echo "${GITHUB_REF_NAME}" | sed 's#[^a-zA-Z0-9]#-#g' | cut -c1-20)
           if npx semantic-release --dry-run --branches "${GITHUB_REF_NAME}" > semantic-release.log 2>&1; then
-            VERSION=$(grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?' semantic-release.log || true)
+            VERSION=$(grep -oiP 'next release version is \K[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?' semantic-release.log || true)
           fi
 
           if [ -z "${VERSION:-}" ]; then
