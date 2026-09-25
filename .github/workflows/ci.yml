@@ -205,7 +205,7 @@ jobs:
 
       - name: Validate the packed nupkg
         run: |
-          dotnet tool install --global dotnet-validate --version 0.0.1-preview.304
+          dotnet tool install --global dotnet-validate --prerelease
           dotnet validate package local artifacts/Umbraco.Community.RecentMediaPicker.*.nupkg
 
   test-packages:
