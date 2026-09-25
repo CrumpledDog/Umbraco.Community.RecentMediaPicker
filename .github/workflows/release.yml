@@ -1,5 +1,9 @@
 name: Build and Package
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 # Manually triggered. Reruns the same build/test/pack/validate/test-packages pipeline as ci.yml, then
 # (optionally) runs the real semantic-release and publishes the packed package to one or more registries.
 # Must be run from release/v1 or beta/v1 - semantic-release's branches config in .releaserc only computes
@@ -30,12 +34,12 @@ jobs:
       package_version: ${{ steps.version.outputs.package_version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -65,17 +69,17 @@ jobs:
       PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -84,6 +88,13 @@ jobs:
       - name: npm ci
         working-directory: ${{ env.PATH_TO_CLIENT }}
         run: npm ci
+
+      - name: Update Version Files
+        id: update-version
+        uses: CrumpledDog/Crumpled.Umbraco.Package.Actions/update-version-files@main
+        with:
+          semver: ${{ env.PACKAGE_VERSION }}
+          path-to-extension: src/Umbraco.Community.RecentMediaPicker
 
       - name: dotnet format check
         run: dotnet format Umbraco.Community.RecentMediaPicker.slnx --verify-no-changes --verbosity diagnostic
@@ -101,7 +112,7 @@ jobs:
       - name: dotnet pack
         run: >
           dotnet pack ${{ env.PACKABLE_PROJECTS }} -c Release --no-build
-          -p:PackageVersion=${{ env.PACKAGE_VERSION }} -p:FileVersion=${{ env.PACKAGE_VERSION }}
+          -p:PackageVersion=${{ env.PACKAGE_VERSION }} -p:FileVersion=${{ steps.update-version.outputs.file-version }}
           -o ./artifacts
 
       - name: Validate the packed nupkg
@@ -110,7 +121,7 @@ jobs:
           dotnet validate package local artifacts/Umbraco.Community.RecentMediaPicker.*.nupkg
 
       - name: Upload nupkg/snupkg artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-nuget-packages
           path: |
@@ -123,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: release-nuget-packages
           path: artifacts
@@ -154,7 +165,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           # Re-sync to the remote branch tip immediately before the real (non-dry-run) semantic-release
@@ -167,7 +178,7 @@ jobs:
           git reset --hard origin/${{ github.ref_name }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 

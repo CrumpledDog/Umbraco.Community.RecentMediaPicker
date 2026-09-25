@@ -1,5 +1,9 @@
 name: Verify Build
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 # Build, format-check, test, pack, and prove the packed nupkg actually installs and boots - on every
 # push/PR to a supported branch line, plus manual dispatch. Separate from release.yml, which only
 # publishes (it reuses these same steps first).
@@ -19,6 +23,17 @@ on:
       - 'feature/v2/**'
       - 'hotfix/v2/**'
   pull_request:
+    branches:
+      - develop/v1
+      - release/v1
+      - beta/v1
+      - 'feature/v1/**'
+      - 'hotfix/v1/**'
+      - develop/v2
+      - release/v2
+      - beta/v2
+      - 'feature/v2/**'
+      - 'hotfix/v2/**'
   workflow_dispatch:
     inputs:
       force_codegen:
@@ -39,12 +54,12 @@ jobs:
       package_version: ${{ steps.version.outputs.package_version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -80,17 +95,17 @@ jobs:
       PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -100,9 +115,16 @@ jobs:
         working-directory: ${{ env.PATH_TO_CLIENT }}
         run: npm ci
 
+      - name: Update Version Files
+        id: update-version
+        uses: CrumpledDog/Crumpled.Umbraco.Package.Actions/update-version-files@main
+        with:
+          semver: ${{ env.PACKAGE_VERSION }}
+          path-to-extension: src/Umbraco.Community.RecentMediaPicker
+
       - name: Cache generated OpenAPI client
         id: api-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.PATH_TO_CLIENT }}/src/api
           key: openapi-client-${{ hashFiles('src/Umbraco.Community.RecentMediaPicker/Controllers/**', 'src/Umbraco.Community.RecentMediaPicker/Constants.cs') }}
@@ -116,7 +138,7 @@ jobs:
           -c Release --logger "trx;LogFileName=test-results.trx"
 
       - name: Publish test results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: NUnit tests
@@ -169,11 +191,11 @@ jobs:
       - name: dotnet pack
         run: >
           dotnet pack ${{ env.PACKABLE_PROJECTS }} -c Release --no-build
-          -p:PackageVersion=${{ env.PACKAGE_VERSION }} -p:FileVersion=${{ env.PACKAGE_VERSION }}
+          -p:PackageVersion=${{ env.PACKAGE_VERSION }} -p:FileVersion=${{ steps.update-version.outputs.file-version }}
           -o ./artifacts
 
       - name: Upload nupkg/snupkg artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nuget-packages
           path: |
@@ -193,15 +215,15 @@ jobs:
       PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
       - name: Download packed nupkg
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nuget-packages
           path: local-feed
