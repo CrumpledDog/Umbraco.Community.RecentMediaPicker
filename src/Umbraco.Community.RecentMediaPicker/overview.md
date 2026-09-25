@@ -98,7 +98,7 @@ directly on our own `RecentMediaController`. Simpler than the original plan, no 
   schema (`propertyEditorSchemaAlias: 'Umbraco.MediaPicker3'`) — exactly what this package does. A custom
   modal for it can reuse *public* exports rather than forking: `UmbPickerModalBaseElement`,
   `UmbMediaTreeRepository`, `UmbMediaItemRepository`, `UmbMediaSearchProvider`, `UmbDropzoneMediaElement`,
-  `UmbPickerInputContext` (all confirmed present in the real v17.0.0 runtime bundle, not just the npm
+  `UmbPickerInputContext` (all confirmed present in the real v17.6.2 runtime bundle, not just the npm
   devDependency types — see the version-skew note below).
 - **Version-skew trap** (hit repeatedly during this build): the npm `@umbraco-cms/backoffice`
   devDependency used to compile this package can be a *newer* version than the actual `Umbraco.Cms` NuGet
@@ -120,8 +120,9 @@ directly on our own `RecentMediaController`. Simpler than the original plan, no 
   already returns all media (not scoped to one folder) ordered by creation date — this is what our custom
   endpoint is built on.
 - `IMediaPermissionService.FilterAuthorizedAccessAsync` (used by core's collection endpoint for
-  permission filtering) does **not exist** in the pinned Umbraco.Cms 17.0.0 — confirmed via a C# compiler
-  error when first attempted. Used the older, still-present primitives instead:
+  permission filtering) did **not exist** in Umbraco.Cms 17.0.0, the version originally pinned here —
+  confirmed via a C# compiler error when first attempted (not re-verified against the 17.6.2 floor this
+  package now targets). Used the older, still-present primitives instead:
   `user.CalculateMediaStartNodeIds(entityService, appCaches)` + `ContentPermissions.HasPathAccess(path, startNodeIds, recycleBinId)`.
   Same underlying logic, older API surface — **the version-skew problem isn't just a frontend risk, it
   hits backend C# too**, just caught immediately by the compiler instead of silently at runtime.
