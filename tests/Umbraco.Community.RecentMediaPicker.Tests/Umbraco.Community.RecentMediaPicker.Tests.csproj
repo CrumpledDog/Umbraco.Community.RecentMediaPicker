@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Moq" />
+    <!-- Umbraco's own public, packable test-helper package (built from tests/Umbraco.Tests.Common in the
+         Umbraco-CMS source) - pulls in Umbraco.Cms transitively, plus UserBuilder/ContentBuilder/MediaBuilder
+         test-data builders, so this project needs no reference to the Umbraco-CMS source tree at all. -->
+    <PackageReference Include="Umbraco.Cms.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Umbraco.Community.RecentMediaPicker\Umbraco.Community.RecentMediaPicker.csproj" />
+  </ItemGroup>
+</Project>

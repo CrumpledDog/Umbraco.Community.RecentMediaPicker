@@ -1,0 +1,243 @@
+name: Verify Build
+
+# Build, format-check, test, pack, and prove the packed nupkg actually installs and boots - on every
+# push/PR to a supported branch line, plus manual dispatch. Separate from release.yml, which only
+# publishes (it reuses these same steps first).
+
+on:
+  push:
+    branches:
+      - develop/v1
+      - release/v1
+      - beta/v1
+      - 'feature/v1/**'
+      - 'hotfix/v1/**'
+      # v2 (Umbraco 18) branch lines are pre-wired but don't exist yet - see CONTRIBUTING.md.
+      - develop/v2
+      - release/v2
+      - beta/v2
+      - 'feature/v2/**'
+      - 'hotfix/v2/**'
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      force_codegen:
+        description: 'Regenerate the OpenAPI client even if no controller/model files changed'
+        type: boolean
+        default: false
+
+env:
+  DOTNET_VERSION: '10'
+  PATH_TO_TESTSITE: src/Umbraco.Community.RecentMediaPicker.TestSite
+  PATH_TO_CLIENT: src/Umbraco.Community.RecentMediaPicker/Client
+  PACKABLE_PROJECTS: src/Umbraco.Community.RecentMediaPicker/Umbraco.Community.RecentMediaPicker.csproj
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      package_version: ${{ steps.version.outputs.package_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Compute next version (dry run)
+        id: version
+        run: |
+          set -euo pipefail
+          npm install --no-save semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github
+
+          # Feature/hotfix branches aren't in .releaserc's branches list, so semantic-release has nothing
+          # to compute against there - fall back to a run-number-suffixed dev version instead. Prerelease
+          # id "00-<slug>" sorts before alpha/beta/rc so these never look newer than a real prerelease.
+          BRANCH_SLUG=$(echo "${GITHUB_REF_NAME}" | sed 's#[^a-zA-Z0-9]#-#g' | cut -c1-20)
+          if npx semantic-release --dry-run --branches "${GITHUB_REF_NAME}" > semantic-release.log 2>&1; then
+            VERSION=$(grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?' semantic-release.log || true)
+          fi
+
+          if [ -z "${VERSION:-}" ]; then
+            LAST_TAG=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null | sed 's/^v//' || true)
+            VERSION="${LAST_TAG:-0.1.0}-dev.${GITHUB_RUN_NUMBER}"
+            if [ -n "$BRANCH_SLUG" ]; then
+              VERSION="${LAST_TAG:-0.1.0}-00-${BRANCH_SLUG}.${GITHUB_RUN_NUMBER}"
+            fi
+          fi
+
+          echo "Computed version: $VERSION"
+          echo "package_version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ${{ env.PATH_TO_CLIENT }}/package-lock.json
+
+      - name: npm ci
+        working-directory: ${{ env.PATH_TO_CLIENT }}
+        run: npm ci
+
+      - name: Cache generated OpenAPI client
+        id: api-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PATH_TO_CLIENT }}/src/api
+          key: openapi-client-${{ hashFiles('src/Umbraco.Community.RecentMediaPicker/Controllers/**', 'src/Umbraco.Community.RecentMediaPicker/Constants.cs') }}
+
+      - name: dotnet format check
+        run: dotnet format Umbraco.Community.RecentMediaPicker.slnx --verify-no-changes --verbosity diagnostic
+
+      - name: dotnet test
+        run: >
+          dotnet test tests/Umbraco.Community.RecentMediaPicker.Tests/Umbraco.Community.RecentMediaPicker.Tests.csproj
+          -c Release --logger "trx;LogFileName=test-results.trx"
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: NUnit tests
+          path: '**/test-results.trx'
+          reporter: dotnet-trx
+
+      - name: Build & start the TestSite (from source)
+        if: steps.api-cache.outputs.cache-hit != 'true' || github.event.inputs.force_codegen == 'true'
+        working-directory: ${{ env.PATH_TO_TESTSITE }}
+        run: |
+          dotnet build -c Release
+          ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5000 \
+            nohup dotnet run -c Release --no-build > ../../testsite.log 2>&1 &
+          echo $! > testsite.pid
+
+          # Poll the package's own Swagger doc rather than "/" - unattended install races root routing.
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5000/umbraco/swagger/recentmediapicker/swagger.json > /dev/null; then
+              echo "TestSite is up."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "TestSite did not become healthy in time." >&2
+          cat ../../testsite.log
+          exit 1
+
+      - name: Regenerate OpenAPI client
+        if: steps.api-cache.outputs.cache-hit != 'true' || github.event.inputs.force_codegen == 'true'
+        working-directory: ${{ env.PATH_TO_CLIENT }}
+        run: node scripts/generate-openapi.js http://localhost:5000/umbraco/swagger/recentmediapicker/swagger.json
+
+      - name: Stop the TestSite
+        if: always()
+        working-directory: ${{ env.PATH_TO_TESTSITE }}
+        run: kill "$(cat testsite.pid)" 2>/dev/null || true
+
+      - name: Check for startup errors
+        if: always()
+        shell: pwsh
+        run: ./.github/scripts/Check-StartupErrors.ps1 -LogDirectory "${{ env.PATH_TO_TESTSITE }}/umbraco/Logs"
+
+      - name: Build Client bundle
+        working-directory: ${{ env.PATH_TO_CLIENT }}
+        run: npm run build
+
+      - name: dotnet build (full solution)
+        run: dotnet build Umbraco.Community.RecentMediaPicker.slnx -c Release
+
+      - name: dotnet pack
+        run: >
+          dotnet pack ${{ env.PACKABLE_PROJECTS }} -c Release --no-build
+          -p:PackageVersion=${{ env.PACKAGE_VERSION }} -p:FileVersion=${{ env.PACKAGE_VERSION }}
+          -o ./artifacts
+
+      - name: Upload nupkg/snupkg artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+          retention-days: 1
+
+      - name: Validate the packed nupkg
+        run: |
+          dotnet tool install --global dotnet-validate --version 0.0.1-preview.304
+          dotnet validate package local artifacts/Umbraco.Community.RecentMediaPicker.*.nupkg
+
+  test-packages:
+    needs: [setup, build]
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Download packed nupkg
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: local-feed
+
+      - name: Add local feed with package source mapping
+        run: |
+          dotnet nuget add source "$(pwd)/local-feed" -n local-recent-media-picker
+          dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+
+      - name: Swap ProjectReference for a PackageReference
+        working-directory: ${{ env.PATH_TO_TESTSITE }}
+        run: |
+          dotnet remove reference ../Umbraco.Community.RecentMediaPicker/Umbraco.Community.RecentMediaPicker.csproj
+          dotnet add package Umbraco.Community.RecentMediaPicker --version "$PACKAGE_VERSION" --source local-recent-media-picker
+
+      - name: Build & boot the TestSite from the packed package
+        working-directory: ${{ env.PATH_TO_TESTSITE }}
+        run: |
+          dotnet build -c Release
+          ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5000 \
+            nohup dotnet run -c Release --no-build > ../../testsite-from-package.log 2>&1 &
+          echo $! > testsite.pid
+
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5000/umbraco/swagger/recentmediapicker/swagger.json > /dev/null; then
+              echo "TestSite booted successfully from the packed nupkg."
+              kill "$(cat testsite.pid)"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "TestSite did not boot from the packed nupkg." >&2
+          cat ../../testsite-from-package.log
+          exit 1
+
+      - name: Check for startup errors
+        if: always()
+        shell: pwsh
+        run: ./.github/scripts/Check-StartupErrors.ps1 -LogDirectory "${{ env.PATH_TO_TESTSITE }}/umbraco/Logs"

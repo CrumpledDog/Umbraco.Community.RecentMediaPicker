@@ -1,0 +1,14 @@
+{
+  "id": "Umbraco.Community.RecentMediaPicker",
+  "name": "Umbraco.Community.RecentMediaPicker",
+  "version": "0.0.0",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "Recent Media Picker Bundle",
+      "alias": "Umbraco.Community.RecentMediaPicker.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/UmbracoCommunityRecentMediaPicker/umbraco-community-recent-media-picker.js"
+    }
+  ]
+}

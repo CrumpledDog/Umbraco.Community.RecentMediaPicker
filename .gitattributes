@@ -1,0 +1,24 @@
+# Line endings
+* text=auto
+*.cs text eol=lf
+*.csx text eol=lf
+*.sh text eol=lf linguist-generated=false
+*.sln text eol=crlf
+*.slnx text eol=crlf
+*.csproj text eol=crlf
+*.config text eol=crlf
+
+# Binaries
+*.png binary
+*.jpg binary
+*.ico binary
+
+# Files that are expected to permanently diverge between the develop/v1-release/v1 (Umbraco 17) and any
+# future develop/v2-release/v2 (Umbraco 18) branch lines - a `git merge develop/v1` into a v2 branch should
+# keep the v2 side's version of these rather than conflict. Run `git config merge.ours.driver true` once per
+# clone/worktree to enable this (see .github/CONTRIBUTING.md).
+Directory.Packages.props merge=ours
+Directory.Build.props merge=ours
+.releaserc merge=ours
+src/Umbraco.Community.RecentMediaPicker/Client/package.json merge=ours
+src/Umbraco.Community.RecentMediaPicker/Client/package-lock.json merge=ours

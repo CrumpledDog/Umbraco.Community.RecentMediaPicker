@@ -1,0 +1,186 @@
+name: Build and Package
+
+# Manually triggered. Reruns the same build/test/pack/validate/test-packages pipeline as ci.yml, then
+# (optionally) runs the real semantic-release and publishes the packed package to one or more registries.
+# Must be run from release/v1 or beta/v1 - semantic-release's branches config in .releaserc only computes
+# a real (non-dev) version on those branches.
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_to_nuget:
+        description: 'Publish to nuget.org (only takes effect on release/* or beta/* branches)'
+        type: boolean
+        default: false
+      create_github_release:
+        description: 'Create a GitHub Release via semantic-release'
+        type: boolean
+        default: true
+
+env:
+  DOTNET_VERSION: '10'
+  PATH_TO_TESTSITE: src/Umbraco.Community.RecentMediaPicker.TestSite
+  PATH_TO_CLIENT: src/Umbraco.Community.RecentMediaPicker/Client
+  PACKABLE_PROJECTS: src/Umbraco.Community.RecentMediaPicker/Umbraco.Community.RecentMediaPicker.csproj
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      package_version: ${{ steps.version.outputs.package_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Compute next version (dry run)
+        id: version
+        run: |
+          set -euo pipefail
+          npm install --no-save semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github
+          npx semantic-release --dry-run > semantic-release.log 2>&1 || true
+          cat semantic-release.log
+          VERSION=$(grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?' semantic-release.log || true)
+          if [ -z "$VERSION" ]; then
+            echo "semantic-release did not compute a release - nothing to do on this branch/commit history." >&2
+            exit 1
+          fi
+          echo "Computed version: $VERSION"
+          echo "package_version=$VERSION" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Same build/test/pack/validate/test-packages steps as ci.yml's `build` + `test-packages` jobs - kept in
+  # this workflow as a single combined job for release simplicity rather than duplicated composite actions.
+  build-and-verify:
+    needs: setup
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ${{ env.PATH_TO_CLIENT }}/package-lock.json
+
+      - name: npm ci
+        working-directory: ${{ env.PATH_TO_CLIENT }}
+        run: npm ci
+
+      - name: dotnet format check
+        run: dotnet format Umbraco.Community.RecentMediaPicker.slnx --verify-no-changes --verbosity diagnostic
+
+      - name: dotnet test
+        run: dotnet test tests/Umbraco.Community.RecentMediaPicker.Tests/Umbraco.Community.RecentMediaPicker.Tests.csproj -c Release
+
+      - name: Build Client bundle
+        working-directory: ${{ env.PATH_TO_CLIENT }}
+        run: npm run build
+
+      - name: dotnet build
+        run: dotnet build Umbraco.Community.RecentMediaPicker.slnx -c Release
+
+      - name: dotnet pack
+        run: >
+          dotnet pack ${{ env.PACKABLE_PROJECTS }} -c Release --no-build
+          -p:PackageVersion=${{ env.PACKAGE_VERSION }} -p:FileVersion=${{ env.PACKAGE_VERSION }}
+          -o ./artifacts
+
+      - name: Validate the packed nupkg
+        run: |
+          dotnet tool install --global dotnet-validate --version 0.0.1-preview.304
+          dotnet validate package local artifacts/Umbraco.Community.RecentMediaPicker.*.nupkg
+
+      - name: Upload nupkg/snupkg artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-nuget-packages
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+          retention-days: 7
+
+  publish:
+    needs: [setup, build-and-verify]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: release-nuget-packages
+          path: artifacts
+
+      - name: Push to GitHub Packages
+        run: |
+          dotnet nuget add source --username CrumpledDog --password ${{ secrets.GITHUB_TOKEN }} \
+            --store-password-in-clear-text --name github "https://nuget.pkg.github.com/CrumpledDog/index.json"
+          dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source github --skip-duplicate
+
+      - name: Push to MyGet
+        if: env.MYGET_API_KEY != ''
+        env:
+          MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
+        run: |
+          dotnet nuget push "artifacts/*.nupkg" --api-key "$MYGET_API_KEY" \
+            --source https://www.myget.org/F/umbraco-packages/api/v3/index.json --skip-duplicate
+
+      - name: Push to nuget.org
+        if: >
+          github.event.inputs.publish_to_nuget == 'true' &&
+          (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'beta/'))
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+  release:
+    needs: [setup, publish]
+    if: github.event.inputs.create_github_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Re-sync to the remote branch tip immediately before the real (non-dry-run) semantic-release
+          # run below, in case another workflow run merged/pushed to this branch in the meantime.
+          ref: ${{ github.ref_name }}
+
+      - name: Re-sync to remote tip
+        run: |
+          git fetch origin ${{ github.ref_name }}
+          git reset --hard origin/${{ github.ref_name }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run semantic-release
+        run: |
+          npm install --no-save semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github
+          npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge release branch back into its develop branch
+        if: startsWith(github.ref_name, 'release/')
+        run: |
+          DEVELOP_BRANCH="develop/${GITHUB_REF_NAME#release/}"
+          chmod +x .github/scripts/merge-to-develop.sh
+          ./.github/scripts/merge-to-develop.sh "$GITHUB_REF_NAME" "$DEVELOP_BRANCH"

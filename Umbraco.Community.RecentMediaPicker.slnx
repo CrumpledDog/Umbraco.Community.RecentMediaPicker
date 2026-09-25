@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/CONTRIBUTING.md" />
+    <File Path="README.md" />
+    <File Path="umbraco-marketplace.json" />
+  </Folder>
+  <Project Path="src/Umbraco.Community.RecentMediaPicker.TestSite/Umbraco.Community.RecentMediaPicker.TestSite.csproj" />
+  <Project Path="src/Umbraco.Community.RecentMediaPicker/Umbraco.Community.RecentMediaPicker.csproj" />
+  <Project Path="tests/Umbraco.Community.RecentMediaPicker.Tests/Umbraco.Community.RecentMediaPicker.Tests.csproj" />
+</Solution>

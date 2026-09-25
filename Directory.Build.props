@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Set to 18 on a future develop/v2 branch line to build against Umbraco CMS 18 instead. Nothing in
+         this repo branches on it yet - this package only targets Umbraco 17 today - but it's declared here
+         now (matching the Crumpled Dog package convention) so the hook exists the moment a second major
+         needs supporting, per CONTRIBUTING.md's branch-per-Umbraco-major model and Directory.Packages.props. -->
+    <UmbracoTargetMajor>17</UmbracoTargetMajor>
+  </PropertyGroup>
+</Project>
