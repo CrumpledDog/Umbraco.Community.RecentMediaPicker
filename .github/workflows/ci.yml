@@ -229,9 +229,8 @@ jobs:
           path: local-feed
 
       - name: Add local feed with package source mapping
-        run: |
-          dotnet nuget add source "$(pwd)/local-feed" -n local-recent-media-picker
-          dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+        # nuget.org is already a default source on hosted runners - only the local feed needs adding.
+        run: dotnet nuget add source "$(pwd)/local-feed" -n local-recent-media-picker
 
       - name: Swap ProjectReference for a PackageReference
         working-directory: ${{ env.PATH_TO_TESTSITE }}
