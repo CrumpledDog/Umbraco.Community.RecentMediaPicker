@@ -190,6 +190,9 @@ jobs:
   publish:
     needs: [setup, build-and-verify, test-packages]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for NuGet trusted publishing (OIDC)
+      packages: write  # Required for pushing to GitHub Packages
     steps:
       - name: Download packages
         uses: actions/download-artifact@v8
@@ -211,11 +214,22 @@ jobs:
           dotnet nuget push "artifacts/*.nupkg" --api-key "$MYGET_API_KEY" \
             --source https://www.myget.org/F/umbraco-packages/api/v3/index.json --skip-duplicate
 
+      - name: NuGet Trusted Publishing Login
+        if: >
+          github.event.inputs.publish_to_nuget == 'true' &&
+          (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'beta/')) &&
+          (!contains(needs.setup.outputs.package_version, '-') || contains(needs.setup.outputs.package_version, '-beta.'))
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: jeavon
+
       - name: Push to nuget.org
         if: >
           github.event.inputs.publish_to_nuget == 'true' &&
-          (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'beta/'))
-        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'beta/')) &&
+          (!contains(needs.setup.outputs.package_version, '-') || contains(needs.setup.outputs.package_version, '-beta.'))
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   release:
     needs: [setup, publish]
