@@ -168,7 +168,7 @@ jobs:
         run: |
           dotnet build -c Release
           ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5000 \
-            nohup dotnet run -c Release --no-build > ../../testsite-from-package.log 2>&1 &
+            nohup dotnet run -c Release --no-build --no-launch-profile > ../../testsite-from-package.log 2>&1 &
           echo $! > testsite.pid
 
           for i in $(seq 1 60); do
