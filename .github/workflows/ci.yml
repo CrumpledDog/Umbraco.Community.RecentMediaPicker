@@ -67,7 +67,7 @@ jobs:
         id: version
         run: |
           set -euo pipefail
-          npm install --no-save semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github
+          npm install --no-save semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github conventional-changelog-conventionalcommits
 
           # Feature/hotfix branches aren't in .releaserc's branches list, so semantic-release has nothing
           # to compute against there - fall back to a run-number-suffixed dev version instead. Prerelease
