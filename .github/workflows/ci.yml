@@ -236,7 +236,7 @@ jobs:
         working-directory: ${{ env.PATH_TO_TESTSITE }}
         run: |
           dotnet remove reference ../Umbraco.Community.RecentMediaPicker/Umbraco.Community.RecentMediaPicker.csproj
-          dotnet add package Umbraco.Community.RecentMediaPicker --version "$PACKAGE_VERSION" --source "$GITHUB_WORKSPACE/local-feed"
+          dotnet add package Umbraco.Community.RecentMediaPicker --version "$PACKAGE_VERSION"
 
       - name: Build & boot the TestSite from the packed package
         working-directory: ${{ env.PATH_TO_TESTSITE }}
