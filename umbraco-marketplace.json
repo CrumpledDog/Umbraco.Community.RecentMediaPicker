@@ -20,7 +20,7 @@
         }
       ]
     },
-    "Category": "Developer Tools",
+    "Category": "Editor Tools",
     "Description": "An alternative Umbraco Media Picker that surfaces recently uploaded media first - by you or by anyone - so editors don't have to remember which folder they put it in.",
     "LicenseTypes": [ "Free" ],
     "IssueTrackerUrl": "https://github.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/issues",
