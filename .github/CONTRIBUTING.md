@@ -26,7 +26,7 @@ Releases automatically - **no version number is ever hand-edited** anywhere in t
 ## Branching model
 
 This package uses a git-flow-style branch pair per supported Umbraco major version. Today that's just
-Umbraco 17 (`v1`):
+Umbraco 17 (`v1`) and Umbraco 18 (`v2`):
 
 | Branch | Purpose |
 |---|---|
@@ -36,8 +36,13 @@ Umbraco 17 (`v1`):
 | `feature/v1/<name>` | Branch off `develop/v1`, PR back into `develop/v1`. |
 | `hotfix/v1/<name>` | Branch off `release/v1`, PR back into `release/v1`, then auto-merged back into `develop/v1` by `.github/scripts/merge-to-develop.sh` after release. |
 
-If a `develop/v2`/`release/v2` line is ever added for Umbraco 18, it will only ever receive changes via
-`git merge develop/v1` (never `git cherry-pick` or a direct feature branch) - see the `merge=ours` files
+`develop/v2`/`release/v2` is the Umbraco 18 line (package `2.x`). It only ever receives changes via
+`git merge develop/v1` (never `git cherry-pick` or a direct feature branch). After any change lands on
+`develop/v1`, `cd` into the v2 worktree, `git merge develop/v1`, rebuild the client if `Client/src/**` changed,
+and push `develop/v2` (push `develop/v1` first). `release/v2` is promoted from `develop/v2` only when cutting a
+v2 release; the first v2 commit carries a `BREAKING CHANGE:` footer so semantic-release starts the line at
+`2.0.0`. `.github/workflows/*.yml` are shared (not `merge=ours`) - edit them on `develop/v1` and keep them
+working for both majors. See the `merge=ours` files
 declared in `.gitattributes` (`Directory.Packages.props`, `Directory.Build.props`, `.releaserc`,
 `src/Umbraco.Community.RecentMediaPicker/Client/package.json` and `package-lock.json`), which are expected
 to diverge permanently between the two lines. Run `git config merge.ours.driver true` once per clone/worktree
