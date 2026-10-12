@@ -1,4 +1,4 @@
-import { U as H } from "./sdk.gen-B-I-Do8j.js";
+import { U as H } from "./sdk.gen-CD4KcgHB.js";
 import { nothing as f, html as r, repeat as _, ifDefined as Fe, css as Se, state as d, query as K, customElement as Me } from "@umbraco-cms/backoffice/external/lit";
 import { UmbPickerModalBaseElement as Re, UmbPickerContext as ze } from "@umbraco-cms/backoffice/picker";
 import { UmbMediaTreeRepository as Ce, UmbMediaSearchProvider as Le, UmbMediaDetailRepository as Pe, UMB_MEDIA_ROOT_ENTITY_TYPE as De } from "@umbraco-cms/backoffice/media";
@@ -22,7 +22,7 @@ var We = Object.defineProperty, Be = Object.getOwnPropertyDescriptor, X = (e) =>
   get _() {
     return u(e, n, o);
   }
-}), S, E, x, T, w, M, R, g, y, t, N, Z, z, C, L, $, j, A, J, ee, te, P, ie, ne, W, q, I, b, ae, re, se, oe, le, B, ue, ce, Q, D, O, de, he, pe, me, fe, _e, ye, be, V, ge, ve, we, $e, qe, xe, Te, Y;
+}), S, E, x, T, w, M, R, b, y, t, N, Z, z, C, L, $, j, A, J, ee, te, P, ie, ne, W, q, I, g, ae, re, se, oe, le, B, ue, ce, Q, D, O, de, he, pe, me, fe, _e, ye, ge, V, be, ve, we, $e, qe, xe, Te, Y;
 function ke(e) {
   return {
     unique: e.unique,
@@ -40,7 +40,7 @@ function Qe(e) {
 const v = { unique: null, entityType: De, name: "Media", mediaType: { unique: null } }, Ve = 6;
 let s = class extends Re {
   constructor() {
-    super(), p(this, t), this._pickerContext = new ze(this), p(this, S, new Ce(this)), p(this, E, new Le(this)), p(this, x, new Ie(this)), p(this, T, new Pe(this)), p(this, w), p(this, M, "UmbMediaItemPickerLocation"), p(this, R, "RecentMediaPickerLastSeen"), this._view = "location", this._mineOnly = !0, this._loadingRecent = !1, this._isPartial = !1, this._recentItems = [], this._landingLocation = v, this._currentFolder = v, this._breadcrumb = [v], this._hasNavigated = !1, this._returnTo = null, this._children = [], this._searchQuery = "", this._searching = !1, this._searchResult = [], this._newSinceLastSeen = 0, this._typingNewFolder = !1, this._allowedFolderTypes = [], this._selectingFolderType = !1, p(this, g), p(this, y, 0), p(this, A, Ee(() => i(this, t, j).call(this), 500)), this.consumeContext(Oe, (e) => {
+    super(), p(this, t), this._pickerContext = new ze(this), p(this, S, new Ce(this)), p(this, E, new Le(this)), p(this, x, new Ie(this)), p(this, T, new Pe(this)), p(this, w), p(this, M, "UmbMediaItemPickerLocation"), p(this, R, "RecentMediaPickerLastSeen"), this._view = "location", this._mineOnly = !0, this._loadingRecent = !1, this._isPartial = !1, this._recentItems = [], this._landingLocation = v, this._currentFolder = v, this._breadcrumb = [v], this._hasNavigated = !1, this._returnTo = null, this._children = [], this._searchQuery = "", this._searching = !1, this._searchResult = [], this._newSinceLastSeen = 0, this._typingNewFolder = !1, this._allowedFolderTypes = [], this._selectingFolderType = !1, p(this, b), p(this, y, 0), p(this, A, Ee(() => i(this, t, j).call(this), 500)), this.consumeContext(Oe, (e) => {
       this.observe(e?.dataType, (n) => k(this, w, n), "_observeDataType");
     });
   }
@@ -72,7 +72,7 @@ T = /* @__PURE__ */ new WeakMap();
 w = /* @__PURE__ */ new WeakMap();
 M = /* @__PURE__ */ new WeakMap();
 R = /* @__PURE__ */ new WeakMap();
-g = /* @__PURE__ */ new WeakMap();
+b = /* @__PURE__ */ new WeakMap();
 y = /* @__PURE__ */ new WeakMap();
 t = /* @__PURE__ */ new WeakSet();
 N = function() {
@@ -119,7 +119,7 @@ ee = async function() {
     }), a = (n ?? []).map((o) => ke(o));
     a.length > 0 && (this._breadcrumb = [v, ...a], this._currentFolder = a[a.length - 1]);
   }
-  this._landingLocation = this._currentFolder, this._hasNavigated = !1, await i(this, t, b).call(this), this._currentFolder.unique === null && await i(this, t, q).call(this);
+  this._landingLocation = this._currentFolder, this._hasNavigated = !1, await i(this, t, g).call(this), this._currentFolder.unique === null && await i(this, t, q).call(this);
 };
 te = function() {
   return this._pickerContext.interactionMemory.getMemory(u(this, M))?.value?.location;
@@ -147,14 +147,14 @@ W = async function() {
     this._newSinceLastSeen = 0;
     return;
   }
-  const { data: n } = await H.recent({ query: { take: 60, mine: !1 } });
+  const { data: n } = await H.getMediaRecent({ query: { take: 60, mine: !1 } });
   if (!n) return;
   const a = new Date(e).getTime();
   this._newSinceLastSeen = n.items.filter((o) => new Date(o.createDate).getTime() > a).length;
 };
 q = async function() {
   this._loadingRecent = !0;
-  const { data: e, error: n } = await H.recent({
+  const { data: e, error: n } = await H.getMediaRecent({
     query: { take: 60, mine: this._mineOnly }
   });
   this._loadingRecent = !1, !(n || !e) && (this._isPartial = e.isPartial, this._recentItems = e.items.map(
@@ -169,20 +169,19 @@ q = async function() {
 I = function(e) {
   this._mineOnly !== e && (this._mineOnly = e, i(this, t, q).call(this));
 };
-b = async function() {
+g = async function() {
   const { data: e } = await u(this, S).requestTreeItemsOf({
     parent: { unique: this._currentFolder.unique, entityType: this._currentFolder.entityType },
     dataType: u(this, w),
-    skip: 0,
-    take: 100
+    paging: { skip: 0, take: 100 }
   });
   this._children = e?.items ?? [], await i(this, t, se).call(this);
 };
 ae = function(e) {
-  i(this, t, $).call(this), this._currentFolder = ke(e), this._breadcrumb = [...this._breadcrumb, this._currentFolder], this._hasNavigated = !0, F(this, y)._++, i(this, t, P).call(this), i(this, t, b).call(this);
+  i(this, t, $).call(this), this._currentFolder = ke(e), this._breadcrumb = [...this._breadcrumb, this._currentFolder], this._hasNavigated = !0, F(this, y)._++, i(this, t, P).call(this), i(this, t, g).call(this);
 };
 re = function(e) {
-  i(this, t, $).call(this), this._breadcrumb = this._breadcrumb.slice(0, e + 1), this._currentFolder = this._breadcrumb[this._breadcrumb.length - 1], this._hasNavigated = this._currentFolder.unique !== this._landingLocation.unique, F(this, y)._++, i(this, t, P).call(this), i(this, t, b).call(this);
+  i(this, t, $).call(this), this._breadcrumb = this._breadcrumb.slice(0, e + 1), this._currentFolder = this._breadcrumb[this._breadcrumb.length - 1], this._hasNavigated = this._currentFolder.unique !== this._landingLocation.unique, F(this, y)._++, i(this, t, P).call(this), i(this, t, g).call(this);
 };
 se = async function() {
   const e = this._currentFolder.mediaType?.unique ?? null, n = this._currentFolder.unique, { data: a } = await u(this, x).requestAllowedChildrenOf(
@@ -192,13 +191,13 @@ se = async function() {
   this._allowedFolderTypes = l.filter((h) => m.has(h.unique));
 };
 oe = function() {
-  this._allowedFolderTypes.length === 1 ? (k(this, g, this._allowedFolderTypes[0]), i(this, t, B).call(this)) : this._allowedFolderTypes.length > 1 && (this._selectingFolderType = !0);
+  this._allowedFolderTypes.length === 1 ? (k(this, b, this._allowedFolderTypes[0]), i(this, t, B).call(this)) : this._allowedFolderTypes.length > 1 && (this._selectingFolderType = !0);
 };
 le = function() {
   this._selectingFolderType = !1;
 };
 B = function(e) {
-  e && k(this, g, e), this._selectingFolderType = !1, this._typingNewFolder = !0, requestAnimationFrame(() => this._newFolderInput?.focus());
+  e && k(this, b, e), this._selectingFolderType = !1, this._typingNewFolder = !0, requestAnimationFrame(() => this._newFolderInput?.focus());
 };
 ue = function(e) {
   e.key === "Enter" && requestAnimationFrame(() => this._newFolderInput?.blur());
@@ -206,8 +205,8 @@ ue = function(e) {
 ce = async function(e) {
   e.stopPropagation();
   const n = e.target.value;
-  if (this._typingNewFolder = !1, !n || !u(this, g)?.unique) return;
-  const a = this._currentFolder.unique, o = u(this, g).unique, l = {
+  if (this._typingNewFolder = !1, !n || !u(this, b)?.unique) return;
+  const a = this._currentFolder.unique, o = u(this, b).unique, l = {
     unique: Ne.new(),
     mediaType: { unique: o, collection: null },
     variants: [{ culture: null, segment: null, name: n, createDate: null, updateDate: null, flags: [] }]
@@ -221,19 +220,19 @@ ce = async function(e) {
     name: h.variants[0].name,
     mediaType: { unique: o }
   };
-  this._breadcrumb = [...this._breadcrumb, G], this._currentFolder = G, this._hasNavigated = !0, F(this, y)._++, i(this, t, P).call(this), await i(this, t, b).call(this);
+  this._breadcrumb = [...this._breadcrumb, G], this._currentFolder = G, this._hasNavigated = !0, F(this, y)._++, i(this, t, P).call(this), await i(this, t, g).call(this);
 };
 Q = async function() {
   i(this, t, $).call(this), this._returnTo = this._currentFolder, this._view = "recent", this._recentItems.length === 0 && await i(this, t, q).call(this), i(this, t, ne).call(this);
 };
 D = async function() {
   const e = this._returnTo ?? v;
-  this._currentFolder = e, this._hasNavigated = e.unique !== this._landingLocation.unique, this._returnTo = null, this._view = "location", F(this, y)._++, await i(this, t, b).call(this);
+  this._currentFolder = e, this._hasNavigated = e.unique !== this._landingLocation.unique, this._returnTo = null, this._view = "location", F(this, y)._++, await i(this, t, g).call(this);
 };
 O = async function(e) {
   const a = e.target.value?.filter((l) => l.status === Ue.COMPLETE) ?? [];
   if (a.length === 0) return;
-  await Promise.all([i(this, t, b).call(this), i(this, t, q).call(this)]), i(this, t, W).call(this);
+  await Promise.all([i(this, t, g).call(this), i(this, t, q).call(this)]), i(this, t, W).call(this);
   const o = a.map((l) => l.unique);
   if (u(this, t, N)) {
     const l = [.../* @__PURE__ */ new Set([...this.value?.selection ?? [], ...o])];
@@ -341,13 +340,13 @@ _e = function() {
         </div>
         <uui-button label="Upload" look="outline" color="default" @click=${() => this._dropzone?.browse()}></uui-button>
       </div>
-      ${this._searchQuery ? i(this, t, be).call(this) : i(this, t, ye).call(this)}
+      ${this._searchQuery ? i(this, t, ge).call(this) : i(this, t, ye).call(this)}
     `;
 };
 ye = function() {
   return r`
       ${u(this, t, Z) ? r`
-            ${i(this, t, ge).call(this)}
+            ${i(this, t, be).call(this)}
             <div id="folders-label">Folders</div>
           ` : f}
       ${this._children.length === 0 ? r`<div class="empty-state">This folder is empty.</div>` : r`<div id="browse-grid">
@@ -359,7 +358,7 @@ ye = function() {
           </div>`}
     `;
 };
-be = function() {
+ge = function() {
   return !this._searchResult.length && !this._searching ? r`<div class="empty-state">No results found.</div>` : r`<div id="browse-grid">
       ${_(
     this._searchResult,
@@ -376,7 +375,7 @@ V = function() {
       </uui-tab-group>
     `;
 };
-ge = function() {
+be = function() {
   const e = this._recentItems.slice(0, Ve);
   return r`
       <div id="strip">
@@ -838,4 +837,4 @@ export {
   s as RecentMediaPickerModalElement,
   nt as default
 };
-//# sourceMappingURL=recent-media-picker-modal.element-C3NIlroe.js.map
+//# sourceMappingURL=recent-media-picker-modal.element-DN5uxxfT.js.map

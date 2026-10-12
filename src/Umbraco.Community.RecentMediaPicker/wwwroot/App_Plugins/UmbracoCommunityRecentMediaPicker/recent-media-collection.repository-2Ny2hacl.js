@@ -1,5 +1,5 @@
 import { UmbRepositoryBase as e } from "@umbraco-cms/backoffice/repository";
-import { f as o } from "./fetch-recent-media-CKUQJb76.js";
+import { f as o } from "./fetch-recent-media-B3LwYWik.js";
 class c extends e {
   constructor(t) {
     super(t);
@@ -13,4 +13,4 @@ export {
   c as RecentMediaCollectionRepository,
   c as default
 };
-//# sourceMappingURL=recent-media-collection.repository-D7bG9E9W.js.map
+//# sourceMappingURL=recent-media-collection.repository-2Ny2hacl.js.map

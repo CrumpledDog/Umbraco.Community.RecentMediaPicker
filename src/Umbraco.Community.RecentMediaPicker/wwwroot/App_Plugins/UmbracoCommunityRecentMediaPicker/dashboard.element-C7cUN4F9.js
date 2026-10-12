@@ -1,8 +1,8 @@
-import { LitElement as g, html as v, css as w, state as h, customElement as x } from "@umbraco-cms/backoffice/external/lit";
+import { LitElement as g, html as v, css as x, state as h, customElement as W } from "@umbraco-cms/backoffice/external/lit";
 import { UmbElementMixin as C } from "@umbraco-cms/backoffice/element-api";
 import { UMB_NOTIFICATION_CONTEXT as U } from "@umbraco-cms/backoffice/notification";
-import { UMB_CURRENT_USER_CONTEXT as W } from "@umbraco-cms/backoffice/current-user";
-import { U as d } from "./sdk.gen-B-I-Do8j.js";
+import { UMB_CURRENT_USER_CONTEXT as w } from "@umbraco-cms/backoffice/current-user";
+import { U as d } from "./sdk.gen-CD4KcgHB.js";
 var T = Object.defineProperty, E = Object.getOwnPropertyDescriptor, y = (t) => {
   throw TypeError(t);
 }, u = (t, e, r, a) => {
@@ -15,7 +15,7 @@ let i = class extends C(g) {
     super(), this._yourName = "Press the button!", l(this, n), l(this, p, async (t) => {
       const e = t.target;
       e.state = "waiting";
-      const { data: r, error: a } = await d.whoAmI();
+      const { data: r, error: a } = await d.getWhoAmI();
       if (a) {
         e.state = "failed", console.error(a);
         return;
@@ -29,7 +29,7 @@ let i = class extends C(g) {
     }), l(this, _, async (t) => {
       const e = t.target;
       e.state = "waiting";
-      const { data: r, error: a } = await d.whatsTheTimeMrWolf();
+      const { data: r, error: a } = await d.getWhatsTheTimeMrWolf();
       if (a) {
         e.state = "failed", console.error(a);
         return;
@@ -38,7 +38,7 @@ let i = class extends C(g) {
     }), l(this, f, async (t) => {
       const e = t.target;
       e.state = "waiting";
-      const { data: r, error: a } = await d.whatsMyName();
+      const { data: r, error: a } = await d.getWhatsMyName();
       if (a) {
         e.state = "failed", console.error(a);
         return;
@@ -46,7 +46,7 @@ let i = class extends C(g) {
       this._yourName = r, e.state = "success";
     }), this.consumeContext(U, (t) => {
       M(this, n, t);
-    }), this.consumeContext(W, (t) => {
+    }), this.consumeContext(w, (t) => {
       this.observe(
         t?.currentUser,
         (e) => {
@@ -64,7 +64,7 @@ let i = class extends C(g) {
           <uui-icon name="icon-user"></uui-icon>${this._serverUserData?.email ? this._serverUserData.email : "Press the button!"}
         </h2>
         <ul>
-          ${this._serverUserData?.groups.map(
+          ${this._serverUserData?.groups?.map(
       (t) => v`<li>${t.name}</li>`
     )}
         </ul>
@@ -132,7 +132,7 @@ p = /* @__PURE__ */ new WeakMap();
 _ = /* @__PURE__ */ new WeakMap();
 f = /* @__PURE__ */ new WeakMap();
 i.styles = [
-  w`
+  x`
       :host {
         display: grid;
         gap: var(--uui-size-layout-1);
@@ -166,11 +166,11 @@ u([
   h()
 ], i.prototype, "_contextCurrentUser", 2);
 i = u([
-  x("example-dashboard")
+  W("example-dashboard")
 ], i);
 const S = i;
 export {
   i as ExampleDashboardElement,
   S as default
 };
-//# sourceMappingURL=dashboard.element-DdGc11vG.js.map
+//# sourceMappingURL=dashboard.element-C7cUN4F9.js.map

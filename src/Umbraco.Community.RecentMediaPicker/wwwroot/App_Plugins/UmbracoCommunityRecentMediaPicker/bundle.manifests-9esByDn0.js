@@ -7,14 +7,14 @@ const s = [
     name: "Entrypoint",
     alias: "Umbraco.Community.RecentMediaPicker.Entrypoint",
     type: "backofficeEntryPoint",
-    js: () => import("./entrypoint-T560zMlW.js")
+    js: () => import("./entrypoint-D_H0jZ1J.js")
   }
 ], p = [
   {
     name: "Dashboard",
     alias: "Umbraco.Community.RecentMediaPicker.Dashboard",
     type: "dashboard",
-    js: () => import("./dashboard.element-DdGc11vG.js"),
+    js: () => import("./dashboard.element-C7cUN4F9.js"),
     meta: {
       label: "Example Dashboard",
       pathname: "example-dashboard"
@@ -44,7 +44,7 @@ const s = [
     type: "modal",
     alias: "Umbraco.Community.RecentMediaPicker.Modal.RecentMediaPicker",
     name: "Recent Media Picker Modal",
-    js: () => import("./recent-media-picker-modal.element-C3NIlroe.js")
+    js: () => import("./recent-media-picker-modal.element-DN5uxxfT.js")
   }
 ], i = "Umbraco.Community.RecentMediaPicker.RecentMedia.Root", y = [
   {
@@ -104,7 +104,7 @@ const s = [
     type: "repository",
     alias: "Umbraco.Community.RecentMediaPicker.Repository.RecentMedia.Collection",
     name: "Recently Added Collection Repository",
-    api: () => import("./recent-media-collection.repository-D7bG9E9W.js")
+    api: () => import("./recent-media-collection.repository-2Ny2hacl.js")
   }
 ], C = [
   {
@@ -112,7 +112,7 @@ const s = [
     alias: "Umbraco.Community.RecentMediaPicker.CollectionView.RecentMedia.Grid",
     name: "Recently Added Grid Collection View",
     // Reuses the existing element unchanged - it was already visually equivalent to core's "Grid" view.
-    element: () => import("./recent-media-collection-view.element-BK7-8iW1.js"),
+    element: () => import("./recent-media-collection-view.element-B6WPtoZ_.js"),
     weight: 300,
     // matches core Media's own Grid weight
     meta: { label: "Grid", icon: "icon-grid", pathName: "grid" },
@@ -123,7 +123,7 @@ const s = [
     type: "collectionView",
     alias: "Umbraco.Community.RecentMediaPicker.CollectionView.RecentMedia.Table",
     name: "Recently Added Table Collection View",
-    element: () => import("./recent-media-table-collection-view.element-DqphcF4b.js"),
+    element: () => import("./recent-media-table-collection-view.element-DIqjj1aP.js"),
     weight: 200,
     // matches core Media's own Table weight
     meta: { label: "Table", icon: "icon-table", pathName: "table" },
@@ -173,4 +173,4 @@ export {
   i as R,
   U as m
 };
-//# sourceMappingURL=bundle.manifests-C2z9g3fr.js.map
+//# sourceMappingURL=bundle.manifests-9esByDn0.js.map

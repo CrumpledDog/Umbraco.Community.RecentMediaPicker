@@ -1,9 +1,9 @@
 <Project>
   <PropertyGroup>
-    <!-- Selects which Umbraco CMS major this branch line builds against: 17 on develop/v1, 18 on develop/v2.
+    <!-- Selects which Umbraco CMS major this branch line builds against: 17 on develop/v1, 18 on develop/v2 (this branch: 18).
          The Umbraco.Cms.* pins in Directory.Packages.props must match. Core's csproj uses it to compile
          only one of Composers/OpenApiRegistration.Umbraco17.cs / .Umbraco18.cs. This file always differs
          between branch lines (merge=ours in .gitattributes). -->
-    <UmbracoTargetMajor>17</UmbracoTargetMajor>
+    <UmbracoTargetMajor>18</UmbracoTargetMajor>
   </PropertyGroup>
 </Project>

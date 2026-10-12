@@ -1,6 +1,6 @@
-import { U as n } from "./sdk.gen-B-I-Do8j.js";
+import { U as n } from "./sdk.gen-CD4KcgHB.js";
 async function d(t = 50, i = !1) {
-  const { data: a, error: r } = await n.recent({ query: { take: t, mine: i } });
+  const { data: a, error: r } = await n.getMediaRecent({ query: { take: t, mine: i } });
   return r || !a ? { items: [], isPartial: !1 } : {
     isPartial: a.isPartial ?? !1,
     items: a.items.map((e) => ({
@@ -17,4 +17,4 @@ async function d(t = 50, i = !1) {
 export {
   d as f
 };
-//# sourceMappingURL=fetch-recent-media-CKUQJb76.js.map
+//# sourceMappingURL=fetch-recent-media-B3LwYWik.js.map

@@ -4,10 +4,10 @@ import { UmbLitElement as N } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_COLLECTION_CONTEXT as Y } from "@umbraco-cms/backoffice/collection";
 import { UMB_ACTION_EVENT_CONTEXT as D } from "@umbraco-cms/backoffice/action";
 import { UmbRequestReloadStructureForEntityEvent as v, UmbRequestReloadChildrenOfEntityEvent as f } from "@umbraco-cms/backoffice/entity-action";
-import { f as I } from "./fetch-recent-media-CKUQJb76.js";
+import { f as I } from "./fetch-recent-media-B3LwYWik.js";
 import { b as U } from "./edit-media-href-BmH951Ug.js";
 import { g as V } from "./date-grouping-xnEeQMkX.js";
-import { R as W } from "./bundle.manifests-C2z9g3fr.js";
+import { R as W } from "./bundle.manifests-9esByDn0.js";
 import { a as k } from "./scope.context-BYlSvIJe.js";
 import "@umbraco-cms/backoffice/imaging";
 var z = Object.defineProperty, A = Object.getOwnPropertyDescriptor, M = (e) => {
@@ -141,4 +141,4 @@ export {
   l as RecentMediaCollectionViewElement,
   ie as default
 };
-//# sourceMappingURL=recent-media-collection-view.element-BK7-8iW1.js.map
+//# sourceMappingURL=recent-media-collection-view.element-B6WPtoZ_.js.map

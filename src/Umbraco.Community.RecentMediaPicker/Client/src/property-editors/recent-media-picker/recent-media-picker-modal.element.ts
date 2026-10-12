@@ -324,7 +324,7 @@ export class RecentMediaPickerModalElement extends UmbPickerModalBaseElement<
       return;
     }
 
-    const { data } = await UmbracoCommunityRecentMediaPickerService.recent({ query: { take: 60, mine: false } });
+    const { data } = await UmbracoCommunityRecentMediaPickerService.getMediaRecent({ query: { take: 60, mine: false } });
     if (!data) return;
 
     const lastSeenTime = new Date(lastSeen).getTime();
@@ -333,7 +333,7 @@ export class RecentMediaPickerModalElement extends UmbPickerModalBaseElement<
 
   async #loadRecent() {
     this._loadingRecent = true;
-    const { data, error } = await UmbracoCommunityRecentMediaPickerService.recent({
+    const { data, error } = await UmbracoCommunityRecentMediaPickerService.getMediaRecent({
       query: { take: 60, mine: this._mineOnly },
     });
     this._loadingRecent = false;
@@ -361,8 +361,7 @@ export class RecentMediaPickerModalElement extends UmbPickerModalBaseElement<
     const { data } = await this.#mediaTreeRepository.requestTreeItemsOf({
       parent: { unique: this._currentFolder.unique, entityType: this._currentFolder.entityType },
       dataType: this.#dataType,
-      skip: 0,
-      take: 100,
+      paging: { skip: 0, take: 100 },
     });
     this._children = data?.items ?? [];
     // Recomputed on every navigation, same as core's own #loadPath - which folder types (if any)

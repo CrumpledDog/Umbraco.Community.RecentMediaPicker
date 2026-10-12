@@ -9,7 +9,7 @@ import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { UUIButtonElement } from "@umbraco-cms/backoffice/external/uui";
 import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
 import { UMB_CURRENT_USER_CONTEXT, UmbCurrentUserModel } from "@umbraco-cms/backoffice/current-user";
-import { UmbracoCommunityRecentMediaPickerService, UserModel } from "../api/index.js";
+import { UmbracoCommunityRecentMediaPickerService, IuserModel } from "../api/index.js";
 
 @customElement("example-dashboard")
 export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
@@ -20,7 +20,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
   private _timeFromMrWolf?: Date;
 
   @state()
-  private _serverUserData?: UserModel;
+  private _serverUserData?: IuserModel;
 
   @state()
   private _contextCurrentUser?: UmbCurrentUserModel;
@@ -52,7 +52,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
     const buttonElement = ev.target as UUIButtonElement;
     buttonElement.state = "waiting";
 
-    const { data, error } = await UmbracoCommunityRecentMediaPickerService.whoAmI();
+    const { data, error } = await UmbracoCommunityRecentMediaPickerService.getWhoAmI();
 
     if (error) {
       buttonElement.state = "failed";
@@ -61,7 +61,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
     }
 
     if (data !== undefined) {
-      this._serverUserData = data as UserModel;
+      this._serverUserData = data as IuserModel;
       buttonElement.state = "success";
     }
 
@@ -80,7 +80,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
     buttonElement.state = "waiting";
 
     // Getting a string - should I expect a datetime?!
-    const { data, error } = await UmbracoCommunityRecentMediaPickerService.whatsTheTimeMrWolf();
+    const { data, error } = await UmbracoCommunityRecentMediaPickerService.getWhatsTheTimeMrWolf();
 
     if (error) {
       buttonElement.state = "failed";
@@ -98,7 +98,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
     const buttonElement = ev.target as UUIButtonElement;
     buttonElement.state = "waiting";
 
-    const { data, error } = await UmbracoCommunityRecentMediaPickerService.whatsMyName();
+    const { data, error } = await UmbracoCommunityRecentMediaPickerService.getWhatsMyName();
 
     if (error) {
       buttonElement.state = "failed";
@@ -120,7 +120,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
             : "Press the button!"}
         </h2>
         <ul>
-          ${this._serverUserData?.groups.map(
+          ${(this._serverUserData?.groups as Array<{ name: string }> | undefined)?.map(
             (group) => html`<li>${group.name}</li>`
           )}
         </ul>
