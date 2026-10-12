@@ -14,6 +14,9 @@ DEVELOP_BRANCH="${2:?Usage: merge-to-develop.sh <release-branch> <develop-branch
 # Directory.Build.props, .releaserc, Client/package.json, Client/package-lock.json) are expected to
 # diverge permanently between major-version branch lines - this driver must be enabled before the merge
 # below runs, or those files will conflict instead of silently keeping the target branch's version.
+# Merge commits need a committer identity - a fresh Actions runner has none configured.
+git config user.name "github-actions[bot]"
+git config user.email "github-actions[bot]@users.noreply.github.com"
 git config merge.ours.driver true
 
 git fetch origin "$RELEASE_BRANCH" "$DEVELOP_BRANCH"
