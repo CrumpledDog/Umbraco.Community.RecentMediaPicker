@@ -12,6 +12,9 @@ using Umbraco.Cms.Core.DependencyInjection;
 
 namespace Umbraco.Community.RecentMediaPicker.Composers
 {
+    // Umbraco 17 (Swashbuckle) OpenAPI document registration. See OpenApiRegistration.Umbraco18.cs for the
+    // Umbraco 18 (native OpenApi) equivalent - the .csproj conditionally compiles only one of the two based
+    // on $(UmbracoTargetMajor) from the repo-root Directory.Build.props.
     public class RecentMediaPickerApiComposer : IComposer
     {
         public void Compose(IUmbracoBuilder builder)

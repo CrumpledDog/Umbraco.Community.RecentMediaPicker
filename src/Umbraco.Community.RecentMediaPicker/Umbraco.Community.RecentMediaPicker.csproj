@@ -42,6 +42,23 @@
     <PackageReference Include="Umbraco.Cms.Web.Website" />
     <PackageReference Include="Umbraco.Cms.Api.Management" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+
+    <!--
+      Microsoft.AspNetCore.OpenApi is available transitively from the Umbraco packages above, but we take a
+      direct dependency here because extension code directly uses types from it and from Microsoft.OpenApi
+      (OpenApiInfo) - both OpenApiRegistration.Umbraco17.cs and .Umbraco18.cs need this pinned to the .NET
+      runtime's own version rather than left to NuGet's transitive resolution, or the different
+      Microsoft.OpenApi versions can conflict at runtime and cause the custom OpenAPI document to not appear.
+    -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+
+  <!-- Only one of these two files is ever compiled - see the comment atop each. -->
+  <ItemGroup Condition="'$(UmbracoTargetMajor)' == '17'">
+    <Compile Remove="Composers\OpenApiRegistration.Umbraco18.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UmbracoTargetMajor)' == '18'">
+    <Compile Remove="Composers\OpenApiRegistration.Umbraco17.cs" />
   </ItemGroup>
 
   <ItemGroup>
