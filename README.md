@@ -8,6 +8,8 @@ An alternative Umbraco Media Picker that surfaces recently uploaded media first 
 anyone - so editors don't have to remember which folder they put it in. Also adds a "Recent" layout
 to the Media section itself, for the same reason.
 
+<img src="https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/src/Umbraco.Community.RecentMediaPicker/icon.png" width="120" height="120" alt="">
+
 <img alt="The Recent Media Picker property editor, showing a horizontal strip of recently uploaded items alongside the usual folders" src="https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/picker-recent-strip.jpg" width="420">
 
 <details>
