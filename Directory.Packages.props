@@ -6,8 +6,6 @@
     <PackageVersion Include="Clean" Version="7.0.7" />
     <PackageVersion Include="Umbraco.Cms" Version="[17.6.2,18.0.0)" />
     <PackageVersion Include="Umbraco.Cms.Web.Website" Version="[17.6.2,18.0.0)" />
-    <PackageVersion Include="Umbraco.Cms.Web.Common" Version="[17.6.2,18.0.0)" />
-    <PackageVersion Include="Umbraco.Cms.Api.Common" Version="[17.6.2,18.0.0)" />
     <PackageVersion Include="Umbraco.Cms.Api.Management" Version="[17.6.2,18.0.0)" />
     <PackageVersion Include="uSync" Version="17.0.0" />
     <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
