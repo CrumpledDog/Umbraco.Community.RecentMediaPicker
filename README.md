@@ -2,7 +2,7 @@
 
 [![Downloads](https://img.shields.io/nuget/dt/Umbraco.Community.RecentMediaPicker?color=cc9900)](https://www.nuget.org/packages/Umbraco.Community.RecentMediaPicker/)
 [![NuGet](https://img.shields.io/nuget/vpre/Umbraco.Community.RecentMediaPicker?color=0273B3)](https://www.nuget.org/packages/Umbraco.Community.RecentMediaPicker)
-[![GitHub license](https://img.shields.io/github/license/CrumpledDog/Umbraco.Community.RecentMediaPicker?color=8AB803)](LICENSE)
+[![GitHub license](https://img.shields.io/github/license/CrumpledDog/Umbraco.Community.RecentMediaPicker?color=8AB803)](https://github.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/blob/develop/v1/LICENSE)
 
 An alternative Umbraco Media Picker that surfaces recently uploaded media first - by you or by
 anyone - so editors don't have to remember which folder they put it in. Also adds a "Recent" layout
@@ -63,7 +63,7 @@ core.
 ## Contributing
 
 Contributions to this package are most welcome! Please read the
-[Contributing Guidelines](.github/CONTRIBUTING.md).
+[Contributing Guidelines](https://github.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/blob/develop/v1/.github/CONTRIBUTING.md).
 
 ## Acknowledgments
 
@@ -72,4 +72,4 @@ recently-uploaded media without needing to remember which folder it landed in.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/blob/develop/v1/LICENSE)
