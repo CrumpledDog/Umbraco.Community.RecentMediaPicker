@@ -357,3 +357,6 @@ src/.idea
 
 # MacOS
 .DS_Store
+# Umbraco-generated JSON schemas (regenerated on build)
+tests/**/appsettings-schema*.json
+tests/**/umbraco-package-schema.json
