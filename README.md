@@ -8,15 +8,18 @@ An alternative Umbraco Media Picker that surfaces recently uploaded media first 
 anyone - so editors don't have to remember which folder they put it in. Also adds a "Recent" layout
 to the Media section itself, for the same reason.
 
-![The Recent Media Picker property editor, showing a horizontal strip of recently uploaded items alongside the usual folders](https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/picker-recent-strip.jpg)
+<img alt="The Recent Media Picker property editor, showing a horizontal strip of recently uploaded items alongside the usual folders" src="https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/picker-recent-strip.jpg" width="420">
 
-**More screenshots**
+<details>
+<summary>More screenshots</summary>
 
-![The picker's full recency grid, reached via 'See all', showing every recent upload grouped under Today](https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/picker-full-recency-grid.jpg)
+<img alt="The picker's full recency grid, reached via 'See all', showing every recent upload grouped under Today" src="https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/picker-full-recency-grid.jpg" width="420">
 
-![The picker's date-grouping in action - Yesterday and This week sections](https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/picker-grouped-by-date.jpg)
+<img alt="The picker's date-grouping in action - Yesterday and This week sections" src="https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/picker-grouped-by-date.jpg" width="420">
 
-![The Media section's own 'Recently added' view, reached from the Media tree](https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/media-section-recently-added.jpg)
+<img alt="The Media section's own 'Recently added' view, reached from the Media tree" src="https://raw.githubusercontent.com/CrumpledDog/Umbraco.Community.RecentMediaPicker/develop/v1/docs/screenshots/media-section-recently-added.jpg" width="560">
+
+</details>
 
 ## Requirements
 
