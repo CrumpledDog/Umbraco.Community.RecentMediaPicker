@@ -29,7 +29,7 @@ Each Umbraco major has its own package version line, so pick the one that matche
 
 | Package version | Umbraco CMS | Branch |
 |---|---|---|
-| `1.x` | 17 (`>= 17.6.2, < 18.0.0`) | `release/v1` |
+| `1.x` | 17 (`>= 17.7.0, < 18.0.0`) | `release/v1` |
 | `2.x` | 18 (`>= 18.2.1, < 19.0.0`) | `release/v2` |
 
 ```bash
