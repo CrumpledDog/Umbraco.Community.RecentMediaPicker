@@ -43,9 +43,9 @@ and push `develop/v2` (push `develop/v1` first). `release/v2` is promoted from `
 v2 release; the first v2 commit carries a `BREAKING CHANGE:` footer so semantic-release starts the line at
 `2.0.0`. `.github/workflows/*.yml` are shared (not `merge=ours`) - edit them on `develop/v1` and keep them
 working for both majors. See the `merge=ours` files
-declared in `.gitattributes` (`Directory.Packages.props`, `Directory.Build.props`, `.releaserc`,
+declared in `.gitattributes` (`Directory.Packages.props`, `Directory.Build.props`, `.releaserc`, `openapi-route.txt`,
 `src/Umbraco.Community.RecentMediaPicker/Client/package.json` and `package-lock.json`), which are expected
-to diverge permanently between the two lines. Run `git config merge.ours.driver true` once per clone/worktree
+to diverge permanently between the two lines (`openapi-route.txt` holds the OpenAPI discovery route: `swagger/{name}/swagger.json` on v1, `openapi/{name}.json` on v2; `generate-openapi.js` reads it). Run `git config merge.ours.driver true` once per clone/worktree
 before working across both branch lines. Prefer `git worktree add` over `git checkout` when switching
 between major-version lines - a plain checkout leaves stale `node_modules`, `bin`/`obj`, and a
 wrong-major local SQLite DB behind.

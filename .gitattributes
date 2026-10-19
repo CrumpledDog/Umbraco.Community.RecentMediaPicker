@@ -19,6 +19,7 @@
 # clone/worktree to enable this (see .github/CONTRIBUTING.md).
 Directory.Packages.props merge=ours
 Directory.Build.props merge=ours
+openapi-route.txt merge=ours
 .releaserc merge=ours
 src/Umbraco.Community.RecentMediaPicker/Client/package.json merge=ours
 src/Umbraco.Community.RecentMediaPicker/Client/package-lock.json merge=ours
