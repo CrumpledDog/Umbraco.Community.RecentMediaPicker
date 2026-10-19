@@ -20,7 +20,7 @@ export const onInit: UmbEntryPointOnInit = async (host, _extensionRegistry) => {
   }
 
   // Guarded: the installed Umbraco.Cms runtime (17.0.0) predates the @umbraco-cms/backoffice
-  // devDependency used to compile this package (^17.6.2), which is when configureClient() was added.
+  // devDependency used to compile this package (^17.7.0), which is when configureClient() was added.
   // Without this guard, a version-skewed backoffice throws here and aborts the whole extension bundle.
   if (typeof authContext.configureClient === "function") {
     authContext.configureClient(client);
