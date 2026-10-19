@@ -25,7 +25,7 @@ export interface RecentMediaFetchResult {
  * client-side filter over a fixed fetch.
  */
 export async function fetchRecentMedia(take = 50, mine = false): Promise<RecentMediaFetchResult> {
-  const { data, error } = await UmbracoCommunityRecentMediaPickerService.recent({ query: { take, mine } });
+  const { data, error } = await UmbracoCommunityRecentMediaPickerService.getMediaRecent({ query: { take, mine } });
   if (error || !data) {
     return { items: [], isPartial: false };
   }

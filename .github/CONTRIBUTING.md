@@ -65,8 +65,9 @@ cd src/Umbraco.Community.RecentMediaPicker/Client && npm ci
 Generated output (`Client/src/api/**` and the built bundle under `src/Umbraco.Community.RecentMediaPicker/wwwroot/`)
 is gitignored, so **each worktree builds its own**: start the TestSite (`dotnet run` in
 `src/Umbraco.Community.RecentMediaPicker.TestSite`), then run `npm run generate-client && npm run build` in the Client
-folder. The v1 and v2 copies genuinely differ (Umbraco 17 vs 18 OpenAPI routes and generated SDK names), so don't
-copy one worktree's generated files into the other.
+folder. The v1 and v2 copies differ in their OpenAPI discovery route (Umbraco 17 vs 18), so regenerate in each worktree
+rather than copying generated files between them. The generated SDK names are the same on both lines (the Umbraco 17
+composer reuses Umbraco's own `OperationIdHandler` naming, scoped by `[MapToApi]`).
 
 Day to day:
 

@@ -324,7 +324,7 @@ export class RecentMediaPickerModalElement extends UmbPickerModalBaseElement<
       return;
     }
 
-    const { data } = await UmbracoCommunityRecentMediaPickerService.recent({ query: { take: 60, mine: false } });
+    const { data } = await UmbracoCommunityRecentMediaPickerService.getMediaRecent({ query: { take: 60, mine: false } });
     if (!data) return;
 
     const lastSeenTime = new Date(lastSeen).getTime();
@@ -333,7 +333,7 @@ export class RecentMediaPickerModalElement extends UmbPickerModalBaseElement<
 
   async #loadRecent() {
     this._loadingRecent = true;
-    const { data, error } = await UmbracoCommunityRecentMediaPickerService.recent({
+    const { data, error } = await UmbracoCommunityRecentMediaPickerService.getMediaRecent({
       query: { take: 60, mine: this._mineOnly },
     });
     this._loadingRecent = false;

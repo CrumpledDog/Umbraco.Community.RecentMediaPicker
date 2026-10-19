@@ -52,7 +52,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
     const buttonElement = ev.target as UUIButtonElement;
     buttonElement.state = "waiting";
 
-    const { data, error } = await UmbracoCommunityRecentMediaPickerService.whoAmI();
+    const { data, error } = await UmbracoCommunityRecentMediaPickerService.getWhoAmI();
 
     if (error) {
       buttonElement.state = "failed";
@@ -80,7 +80,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
     buttonElement.state = "waiting";
 
     // Getting a string - should I expect a datetime?!
-    const { data, error } = await UmbracoCommunityRecentMediaPickerService.whatsTheTimeMrWolf();
+    const { data, error } = await UmbracoCommunityRecentMediaPickerService.getWhatsTheTimeMrWolf();
 
     if (error) {
       buttonElement.state = "failed";
@@ -98,7 +98,7 @@ export class ExampleDashboardElement extends UmbElementMixin(LitElement) {
     const buttonElement = ev.target as UUIButtonElement;
     buttonElement.state = "waiting";
 
-    const { data, error } = await UmbracoCommunityRecentMediaPickerService.whatsMyName();
+    const { data, error } = await UmbracoCommunityRecentMediaPickerService.getWhatsMyName();
 
     if (error) {
       buttonElement.state = "failed";
