@@ -43,9 +43,9 @@ and push `develop/v2` (push `develop/v1` first). `release/v2` is promoted from `
 v2 release; the first v2 commit carries a `BREAKING CHANGE:` footer so semantic-release starts the line at
 `2.0.0`. `.github/workflows/*.yml` are shared (not `merge=ours`) - edit them on `develop/v1` and keep them
 working for both majors. See the `merge=ours` files
-declared in `.gitattributes` (`Directory.Packages.props`, `Directory.Build.props`, `.releaserc`,
+declared in `.gitattributes` (`Directory.Packages.props`, `Directory.Build.props`, `.releaserc`, `openapi-route.txt`,
 `src/Umbraco.Community.RecentMediaPicker/Client/package.json` and `package-lock.json`), which are expected
-to diverge permanently between the two lines. Run `git config merge.ours.driver true` once per clone/worktree
+to diverge permanently between the two lines (`openapi-route.txt` holds the OpenAPI discovery route: `swagger/{name}/swagger.json` on v1, `openapi/{name}.json` on v2; `generate-openapi.js` reads it). Run `git config merge.ours.driver true` once per clone/worktree
 before working across both branch lines. Prefer `git worktree add` over `git checkout` when switching
 between major-version lines - a plain checkout leaves stale `node_modules`, `bin`/`obj`, and a
 wrong-major local SQLite DB behind.
@@ -65,8 +65,9 @@ cd src/Umbraco.Community.RecentMediaPicker/Client && npm ci
 Generated output (`Client/src/api/**` and the built bundle under `src/Umbraco.Community.RecentMediaPicker/wwwroot/`)
 is gitignored, so **each worktree builds its own**: start the TestSite (`dotnet run` in
 `src/Umbraco.Community.RecentMediaPicker.TestSite`), then run `npm run generate-client && npm run build` in the Client
-folder. The v1 and v2 copies genuinely differ (Umbraco 17 vs 18 OpenAPI routes and generated SDK names), so don't
-copy one worktree's generated files into the other.
+folder. The v1 and v2 copies differ in their OpenAPI discovery route (Umbraco 17 vs 18), so regenerate in each worktree
+rather than copying generated files between them. The generated SDK names are the same on both lines (the Umbraco 17
+composer reuses Umbraco's own `OperationIdHandler` naming, scoped by `[MapToApi]`).
 
 Day to day:
 

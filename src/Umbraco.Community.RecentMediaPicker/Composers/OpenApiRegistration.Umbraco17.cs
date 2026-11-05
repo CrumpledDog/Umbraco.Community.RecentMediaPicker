@@ -9,6 +9,7 @@ using Umbraco.Cms.Api.Common.OpenApi;
 using Umbraco.Cms.Api.Management.OpenApi;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Extensions;
 
 namespace Umbraco.Community.RecentMediaPicker.Composers
 {
@@ -56,9 +57,9 @@ namespace Umbraco.Community.RecentMediaPicker.Composers
             protected override string ApiName => Constants.ApiName;
         }
 
-        // This is used to generate nice operation IDs in our swagger json file
-        // So that the gnerated TypeScript client has nice method names and not too verbose
-        // https://docs.umbraco.com/umbraco-cms/tutorials/creating-a-backoffice-api/umbraco-schema-and-operation-ids#operation-ids
+        // Reuses Umbraco's own OperationIdHandler naming (no Handle override), scoped to this package's
+        // [MapToApi] controllers, so Umbraco 17 emits the same operationIds - and therefore the same generated
+        // SDK names - as Umbraco 18. This keeps Client/src call sites identical across the v1/v2 lines.
         public class CustomOperationHandler : OperationIdHandler
         {
             public CustomOperationHandler(IOptions<ApiVersioningOptions> apiVersioningOptions) : base(apiVersioningOptions)
@@ -66,11 +67,7 @@ namespace Umbraco.Community.RecentMediaPicker.Composers
             }
 
             protected override bool CanHandle(ApiDescription apiDescription, ControllerActionDescriptor controllerActionDescriptor)
-            {
-                return controllerActionDescriptor.ControllerTypeInfo.Namespace?.StartsWith("Umbraco.Community.RecentMediaPicker.Controllers", comparisonType: StringComparison.InvariantCultureIgnoreCase) is true;
-            }
-
-            public override string Handle(ApiDescription apiDescription) => $"{apiDescription.ActionDescriptor.RouteValues["action"]}";
+                => controllerActionDescriptor.HasMapToApiAttribute(Constants.ApiName);
         }
     }
 }
