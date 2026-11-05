@@ -11,6 +11,8 @@
       {
         "preset": "conventionalcommits",
         "releaseRules": [
+          { "breaking": true, "release": "major" },
+          { "subject": "BREAKING CHANGE*", "release": "major" },
           { "type": "feat", "release": "minor" },
           { "type": "fix", "release": "patch" },
           { "type": "chore", "release": "patch" },
@@ -22,7 +24,10 @@
           { "type": "docs", "scope": "README", "release": "patch" },
           { "type": "perf", "release": "patch" },
           { "type": "deps", "release": "patch" }
-        ]
+        ],
+        "parserOpts": {
+          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+        }
       }
     ],
     [

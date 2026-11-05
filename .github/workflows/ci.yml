@@ -69,8 +69,9 @@ jobs:
 
       - name: Calculate Branch Slug
         id: calculate-branch
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          BRANCH_NAME="${{ github.ref_name }}"
           echo "Current branch: $BRANCH_NAME"
 
           if [[ "$BRANCH_NAME" == hotfix/* ]] || [[ "$BRANCH_NAME" == feature/* ]]; then
@@ -79,7 +80,7 @@ jobs:
             # Truncate to max 15 chars total to keep NuGet paths short
             # Replace feature->ft and hotfix->hf to save more space
             # Trim trailing hyphen if present after truncation
-            BRANCH_SLUG=$(echo "$BRANCH_NAME" | sed 's/feature\//ft-/g; s/hotfix\//hf-/g; s/\//-/g' | cut -c 1-12 | sed 's/-$//')
+            BRANCH_SLUG=$(echo "$BRANCH_NAME" | sed 's/feature\//ft-/g; s/hotfix\//hf-/g; s/\//-/g' | sed 's/[^A-Za-z0-9-]/-/g' | cut -c 1-12 | sed 's/-$//')
             PRERELEASE_ID="00-${BRANCH_SLUG}"
             echo "Branch slug: $BRANCH_SLUG"
             echo "Prerelease ID: $PRERELEASE_ID"
@@ -91,9 +92,10 @@ jobs:
 
       - name: Update .releaserc for current branch
         if: ${{ steps.calculate-branch.outputs.prerelease_id != '' }}
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+          PRERELEASE_ID: ${{ steps.calculate-branch.outputs.prerelease_id }}
         run: |
-          BRANCH_NAME="${{ github.ref_name }}"
-          PRERELEASE_ID="${{ steps.calculate-branch.outputs.prerelease_id }}"
 
           jq --arg name "$BRANCH_NAME" --arg prerelease "$PRERELEASE_ID" \
             '.branches += [{"name": $name, "prerelease": $prerelease}]' \
@@ -138,7 +140,6 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
-      checks: write
     steps:
     - uses: actions/checkout@v5
       with:
@@ -185,16 +186,8 @@ jobs:
     - name: Dotnet Format check
       run: dotnet format --verify-no-changes --verbosity diagnostic
 
-    - name: Run Tests
-      run: dotnet test tests/Umbraco.Community.RecentMediaPicker.Tests/Umbraco.Community.RecentMediaPicker.Tests.csproj --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory ./TestResults
-
-    - name: Publish Test Report
-      uses: dorny/test-reporter@v3
-      if: always()
-      with:
-        name: Test Results
-        path: TestResults/*.trx
-        reporter: dotnet-trx
+    - name: Run Unit Tests
+      run: dotnet test tests/Umbraco.Community.RecentMediaPicker.Tests/Umbraco.Community.RecentMediaPicker.Tests.csproj --configuration Release --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
 
     - name: Cache NuGet
       uses: actions/cache@v6
@@ -223,11 +216,11 @@ jobs:
       if: steps.codegen-cache.outputs.cache-hit != 'true' || inputs.force_codegen == true
       shell: bash
       run: |
-        # Polls the package's own swagger.json rather than the site root - the root route depends
+        # Polls the package's own OpenAPI document (swagger on Umbraco 17, openapi on 18) rather than the site root - the root route depends
         # on Umbraco having routable content, which races with a fresh unattended install and can
         # throw ("No UmbracoRouteValues feature was found") if hit before content is ready.
         for i in {1..30}; do
-          if curl -k -s -o /dev/null -w "%{http_code}" https://localhost:44333/umbraco/swagger/recentmediapicker/swagger.json | grep -q "200"; then
+          if for u in "https://localhost:44333/umbraco/swagger/recentmediapicker/swagger.json" "https://localhost:44333/umbraco/openapi/recentmediapicker.json"; do curl -k -s -o /dev/null -w "%{http_code}\n" "$u"; done | grep -q "200"; then
             echo "Umbraco is responding!"
             exit 0
           fi
@@ -362,6 +355,20 @@ jobs:
         </configuration>
         EOF
 
+    # NuGet checks the global packages folder before any package source, and the cache above is restored per
+    # branch. A repeated version (for example a re-run, or a prerelease version that has not advanced) would
+    # otherwise restore an older cached copy and test that instead of the artifact built in this run.
+    - name: Clear cached copies of the packages under test
+      shell: bash
+      run: |
+        for pkg in nuget-packages-flat/*.nupkg; do
+          nuspec=$(unzip -p "$pkg" '*.nuspec')
+          id=$(echo "$nuspec" | sed -n 's:.*<id>\(.*\)</id>.*:\1:p' | head -1 | tr '[:upper:]' '[:lower:]')
+          version=$(echo "$nuspec" | sed -n 's:.*<version>\(.*\)</version>.*:\1:p' | head -1 | tr '[:upper:]' '[:lower:]')
+          echo "Clearing cached $id $version"
+          rm -rf "$HOME/.nuget/packages/$id/$version"
+        done
+
     - name: Replace ProjectReference with PackageReference
       working-directory: ${{ env.PATH_TO_TESTSITE }}
       shell: bash
@@ -383,7 +390,7 @@ jobs:
         sleep 5
 
         for i in {1..30}; do
-          if curl -k -s -o /dev/null -w "%{http_code}" https://localhost:44333/umbraco/swagger/recentmediapicker/swagger.json | grep -q "200"; then
+          if for u in "https://localhost:44333/umbraco/swagger/recentmediapicker/swagger.json" "https://localhost:44333/umbraco/openapi/recentmediapicker.json"; do curl -k -s -o /dev/null -w "%{http_code}\n" "$u"; done | grep -q "200"; then
             exit 0
           fi
           sleep 2
