@@ -1,5 +1,4 @@
 import { manifests as entrypoints } from "./entrypoints/manifest.js";
-import { manifests as dashboards } from "./dashboards/manifest.js";
 import { manifests as recentMediaPicker } from "./property-editors/recent-media-picker/manifests.js";
 import { manifests as recentMediaMenuItem } from "./recent-media/menu-item/manifests.js";
 import { manifests as recentMediaWorkspace } from "./recent-media/workspace/manifests.js";
@@ -12,7 +11,6 @@ import { manifests as recentMediaBulkActions } from "./recent-media/collection/e
 // We load this bundle from umbraco-package.json
 export const manifests: Array<UmbExtensionManifest> = [
   ...entrypoints,
-  ...dashboards,
   ...recentMediaPicker,
   ...recentMediaMenuItem,
   ...recentMediaWorkspace,
