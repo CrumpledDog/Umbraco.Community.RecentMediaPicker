@@ -12,6 +12,7 @@
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Moq" />
+    <PackageReference Include="GitHubActionsTestLogger" PrivateAssets="all" />
     <!-- Umbraco's own public, packable test-helper package (built from tests/Umbraco.Tests.Common in the
          Umbraco-CMS source) - pulls in Umbraco.Cms transitively, plus UserBuilder/ContentBuilder/MediaBuilder
          test-data builders, so this project needs no reference to the Umbraco-CMS source tree at all. -->
